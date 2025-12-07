@@ -1,13 +1,12 @@
 import torch
-import structlog
-
-LOGGER = structlog.get_logger(__name__)
 
 
 class RBFKernel(torch.nn.Module):
     def __init__(self, log_lengthscale=0.0, log_sigma_f=0.0):
         super().__init__()
+        # Lengthscale encodes how quickly the function changes in input space
         self.log_lengthscale = torch.nn.Parameter(torch.tensor(log_lengthscale))
+        # Controls the signal variance (overall vertical scale) of the underlying latent function f(x)
         self.log_sigma_f = torch.nn.Parameter(torch.tensor(log_sigma_f))
 
     def forward(self, X: torch.Tensor, X2: torch.Tensor = None):
