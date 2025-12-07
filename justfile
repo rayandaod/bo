@@ -7,5 +7,5 @@ lint:
     uv run ruff check --fix
 
 # Run tests
-test pytest_args='-svvv':
-    uv run pytest {{pytest_args}}
+test test_folder='tests' pytest_args='-svvv':
+    uv run pytest {{test_folder}} {{pytest_args}}
