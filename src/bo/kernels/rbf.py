@@ -4,7 +4,12 @@ import structlog
 LOGGER = structlog.get_logger(__name__)
 
 
-def rbf_kernel(X1, X2, lengthscale, variance) -> torch.Tensor:
+def rbf_kernel(
+    X1: torch.Tensor,
+    X2: torch.Tensor,
+    lengthscale: torch.nn.Parameter,
+    variance: torch.nn.Parameter,
+) -> torch.Tensor:
     """
     k(x,x′)=σf2​exp(−2ℓ2∥x−x′∥2​)
     Args:
@@ -15,20 +20,17 @@ def rbf_kernel(X1, X2, lengthscale, variance) -> torch.Tensor:
     Returns:
         K (n, m)
     """
-    LOGGER.debug(X1.shape)
-    LOGGER.debug(X2.shape)
-
-    norm_X1 = torch.linalg.vector_norm(X1, dim=1).unsqueeze(1)
+    norm_X1 = torch.sum(X1**2, dim=1, keepdim=True)  # (n,)
     LOGGER.debug(norm_X1.shape)
 
-    norm_X2 = torch.linalg.vector_norm(X2, dim=1).unsqueeze(0)
+    norm_X2 = torch.sum(X2**2, dim=1).unsqueeze(0)  # (m,)
     LOGGER.debug(norm_X2.shape)
 
-    cross_term_X1_X2 = 2 * X1.T @ X2
+    cross_term_X1_X2 = 2 * X1 @ X2.T  # (n, m)
     LOGGER.debug(cross_term_X1_X2.shape)
 
     squared_distances = norm_X1 + norm_X2 - cross_term_X1_X2
-    scaled_squared_distances = squared_distances / 2 * lengthscale**2
+    scaled_squared_distances = squared_distances / (2 * lengthscale**2)
     LOGGER.debug(scaled_squared_distances.shape)
 
     return variance * torch.exp(-scaled_squared_distances)  # (n, m)
