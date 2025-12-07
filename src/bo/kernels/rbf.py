@@ -11,7 +11,8 @@ def rbf_kernel(
     variance: torch.nn.Parameter,
 ) -> torch.Tensor:
     """
-    k(x,x′)=σf2​exp(−2ℓ2∥x−x′∥2​)
+    Kernel function:
+        k(x,x') = variance * exp(- 2 * lengthscale**2 * || x - x'||**2)
     Args:
         X1 (n, d)
         X2 (m, d)
